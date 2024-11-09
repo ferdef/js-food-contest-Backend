@@ -39,14 +39,47 @@ exports.addDishToContest = async (req, res) => {
 
 exports.getDishScores = async (req, res) => {
   try {
-    const contest = await Contest.findById(req.params.contestId).populate('dishes');
+    const contest = await Contest.findById(req.params.contestId).populate({
+      path: 'dishes',
+      populate: { path: 'votes.voter' }
+    });
     if (!contest) {
       return res.status(404).send({ error: 'Contest not found' });
     }
 
     const scores = contest.dishes.map(dish => ({
       dish: dish.name,
-      totalScore: dish.votes.reduce((acc, vote) => acc + vote.score, 0)
+      totalScore: dish.votes.reduce((acc, vote) => acc + vote.score, 0),
+      votes: dish.votes.map(vote => ({
+        voter: vote.voter.username,
+        score: vote.score
+      }))
+    }));
+
+    res.status(200).send(scores);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+exports.getDishScoresWithOwners = async (req, res) => {
+  try {
+    const contest = await Contest.findById(req.params.contestId).populate({
+      path: 'dishes',
+      populate: { path: 'votes.voter owner' }
+    });
+    if (!contest) {
+      return res.status(404).send({ error: 'Contest not found' });
+    }
+
+    const scores = contest.dishes.map(dish => ({
+      dish: dish.name,
+      owner: dish.owner.username,
+      totalScore: dish.votes.reduce((acc, vote) => acc + vote.score, 0),
+      votes: dish.votes.map(vote => ({
+        voter: vote.voter.username,
+        score: vote.score
+      }))
     }));
 
     res.status(200).send(scores);
