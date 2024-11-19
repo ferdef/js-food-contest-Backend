@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || 'your_mongo_connection_string';
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 const authMiddleware = (req, res, next) => {

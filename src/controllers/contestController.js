@@ -20,6 +20,26 @@ exports.getContests = async (req, res) => {
   }
 };
 
+exports.activateContest = async (req, res) => {
+  try {
+    const contestId = req.params.contestId;
+    const selectedContest = await Contest.findById(contestId);
+    if (!selectedContest) {
+      return res.status(404).send({ error: 'Contest not found' });
+    }
+    const contests = await Contest.find();
+
+    contests.forEach((contest) => {
+      contest.active = contest._id.equals(contestId);
+      contest.save();
+    });
+    selectedContest.active = true;
+    res.status(200).send(selectedContest);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
 exports.addDishToContest = async (req, res) => {
   try {
     const contest = await Contest.findById(req.params.contestId);
