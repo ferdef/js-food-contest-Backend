@@ -28,12 +28,14 @@ exports.activateContest = async (req, res) => {
       return res.status(404).send({ error: 'Contest not found' });
     }
     const contests = await Contest.find();
-
+Contest.
     contests.forEach((contest) => {
       contest.active = contest._id.equals(contestId);
       contest.save();
     });
+    // Contest.updateMany(undefined, active: false);
     selectedContest.active = true;
+    // selectedContest.save();
     res.status(200).send(selectedContest);
   } catch (error) {
     res.status(500).send(error);
